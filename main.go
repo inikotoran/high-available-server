@@ -70,6 +70,9 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 
 	daysUntilBirthday := daysUntil(user.DateOfBirth)
 	message := fmt.Sprintf("Hello, %s! Your birthday is in %d day(s)", username, daysUntilBirthday)
+	if daysUntilBirthday == 0 {
+		message = fmt.Sprintf("Hello, %s! Happy birthday!", username)
+	}
 
 	responseData := map[string]string{
 		"message": message,
@@ -88,9 +91,10 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 
 func daysUntil(target time.Time) int {
 	now := time.Now()
-	target = target.AddDate(now.Year(), 0, 0) // Set target's year to current year
+	target = time.Date(now.Year(), target.Month(), target.Day(), 0, 0, 0, 0, now.Location())
+	now = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	if target.Before(now) {
-		target = target.AddDate(1, 0, 0) // If birthday already passed this year, set target's year to next year
+		target = target.AddDate(1, 0, 0)
 	}
 	return int(target.Sub(now).Hours() / 24)
 }
