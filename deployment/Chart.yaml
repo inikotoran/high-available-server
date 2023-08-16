@@ -1,0 +1,6 @@
+# Chart.yaml
+apiVersion: v2
+name: my-golang-server-chart
+description: A Helm chart to deploy the Golang server
+version: 0.1.0
+appVersion: 1.0
