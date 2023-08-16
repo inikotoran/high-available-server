@@ -1,1 +1,1 @@
-module high-available-server
+module github.com/inikotoran/high-available-server
