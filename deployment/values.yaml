@@ -2,5 +2,4 @@
 server:
   image:
     repository: high-available-server
-    tag: t1
   port: 8080
