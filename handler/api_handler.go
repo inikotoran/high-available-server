@@ -4,20 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/inikotoran/high-available-server/model"
+	"github.com/inikotoran/high-available-server/repository"
 	"net/http"
-	"sync"
 	"time"
 )
 
 func NewHandler() *Handler {
 	return &Handler{
-		users: make(map[string]model.User),
+		repo: repository.NewInMemoryRepo(),
 	}
 }
 
 type Handler struct {
-	users     map[string]model.User
-	usersLock sync.Mutex
+	repo repository.Repo
 }
 
 func (h *Handler) Put(w http.ResponseWriter, r *http.Request) {
@@ -43,12 +42,13 @@ func (h *Handler) Put(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.usersLock.Lock()
-	defer h.usersLock.Unlock()
-
-	h.users[username] = model.User{
+	err = h.repo.Save(model.User{
 		Username:    username,
 		DateOfBirth: dateOfBirth,
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusNoContent)
@@ -61,12 +61,14 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.usersLock.Lock()
-	user, found := h.users[username]
-	h.usersLock.Unlock()
+	user, err := h.repo.Get(username)
 
-	if !found {
-		http.NotFound(w, r)
+	if err != nil {
+		if err.Error() == "user not found" {
+			http.NotFound(w, r)
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
