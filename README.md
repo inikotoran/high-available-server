@@ -58,7 +58,7 @@ default it will use the short hash commit ID.
 Once we have the image, we can deploy it using helm. Run this script to deploy application:
 
 ```shell
-./build/deploy.sh
+./script/deploy.sh
 ```
 
 Similar to the build script, we can also pass custom image tag as first argument.
